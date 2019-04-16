@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from Home10.additional_data import random_string, presence_num_of_elements
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def driver():
     driver = webdriver.Chrome()
     #driver = webdriver.Firefox(executable_path = r"/home/qa/Downloads/geckodriver")
