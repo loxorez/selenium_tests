@@ -4,7 +4,7 @@ from time import sleep
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions
-from Home10.additional_data import random_string, presence_num_of_elements
+from Home10.additional_data import *
 import random
 
 
@@ -13,10 +13,8 @@ def test_create_short_post(driver, log_in_log_out):
     all_comments = driver.find_elements(By.CLASS_NAME, 'ow_newsfeed_content')
     driver.find_element(By.NAME, "status").send_keys(input_text)
     driver.find_element(By.NAME, "save").click()
-    expected_comments_value = len(all_comments) + 1
-
     wait = WebDriverWait(driver, 10)
-    new_comments = wait.until(presence_num_of_elements((By.CLASS_NAME, 'ow_newsfeed_content'), expected_comments_value))
+    new_comments = wait.until(presence_num_of_elements_gt((By.CLASS_NAME, 'ow_newsfeed_content'), len(all_comments)))
     assert new_comments[0].text == input_text
 
 
@@ -25,20 +23,20 @@ def test_create_long_post(driver, log_in_log_out):
     all_comments = driver.find_elements(By.CLASS_NAME, 'ow_newsfeed_content')
     driver.find_element(By.NAME, "status").send_keys(input_text)
     driver.find_element(By.NAME, "save").click()
-    expected_comments_value = len(all_comments) + 1
 
     wait = WebDriverWait(driver, 10)
-    wait.until(presence_num_of_elements((By.CLASS_NAME, 'ow_newsfeed_content'), expected_comments_value))
+    wait.until(presence_num_of_elements_gt((By.CLASS_NAME, 'ow_newsfeed_content'), len(all_comments)))
     driver.find_element(By.LINK_TEXT, 'See more').click()
     new_comments = driver.find_elements(By.CLASS_NAME, 'ow_newsfeed_content')
     assert new_comments[0].text == input_text
 
 
 def test_empty_form(driver, log_in_log_out):
-     driver.find_element(By.NAME, "status").click()
-     driver.find_element(By.NAME, "save").click()
-     result_message = driver.find_element(By.CLASS_NAME, "ow_message_node").text
-     assert result_message == "PLEASE FILL THE FORM PROPERLY"
+    driver.find_element(By.NAME, "status").click()
+    driver.find_element(By.NAME, "save").click()
+    result_message = driver.find_element(By.CLASS_NAME, "ow_message_node").text
+    driver.find_element(By.CLASS_NAME, 'close_button').click()
+    assert result_message == "PLEASE FILL THE FORM PROPERLY"
 
 
 def test_delete_post(driver, log_in_log_out):
@@ -46,10 +44,8 @@ def test_delete_post(driver, log_in_log_out):
     all_comments = driver.find_elements(By.CLASS_NAME, 'ow_newsfeed_content')
     driver.find_element(By.NAME, "status").send_keys(input_text)
     driver.find_element(By.NAME, "save").click()
-    expected_comments_value = len(all_comments) + 1
-
     wait = WebDriverWait(driver, 10)
-    wait.until(presence_num_of_elements((By.CLASS_NAME, 'ow_newsfeed_content'), expected_comments_value))
+    wait.until(presence_num_of_elements_gt((By.CLASS_NAME, 'ow_newsfeed_content'), len(all_comments)))
 
     action = ActionChains(driver)
     driver.find_element(By.CLASS_NAME, "ow_newsfeed_content").click()
@@ -58,9 +54,21 @@ def test_delete_post(driver, log_in_log_out):
     action.move_to_element(more).move_to_element(delete).click().perform()
     driver.switch_to_alert().accept()
 
-    all_comments_after_delete = wait.until(presence_num_of_elements((By.CLASS_NAME, 'ow_newsfeed_content'),
-                                                                    len(all_comments)))
+    all_comments_after_delete = wait.until(presence_num_of_elements_eq((By.CLASS_NAME, 'ow_newsfeed_content'), len(all_comments)))
     assert len(all_comments) == len(all_comments_after_delete)
+
+
+def test_newsfeed_copy_paste(driver, log_in_log_out):
+    input_text = random_string(1, 300)
+    all_comments = driver.find_elements(By.CLASS_NAME, 'ow_newsfeed_content')
+    driver.find_element(By.NAME, "status").send_keys(input_text, (Keys.CONTROL, 'a'))
+    driver.find_element(By.NAME, "status").send_keys(Keys.CONTROL, 'c')
+    driver.find_element(By.NAME, "status").send_keys(Keys.DELETE)
+    wait = WebDriverWait(driver, 10)
+    driver.find_element(By.NAME, "status").send_keys(Keys.CONTROL, 'v')
+    driver.find_element(By.NAME, "save").click()
+    new_comments = wait.until(presence_num_of_elements_gt((By.CLASS_NAME, 'ow_newsfeed_content'), len(all_comments)))
+    assert new_comments[0].text == input_text
 
 
 def test_like_counter(driver, log_in_log_out, create_new_comment):
@@ -96,12 +104,13 @@ def test_time_till_post_added_link(driver, log_in_log_out, create_new_comment):
 
 def test_add_inner_comment(driver, log_in_log_out, create_new_comment):
     input_inner_text = random_string(1, 150)
+    current_inner_comment_counter = driver.find_elements(By.CLASS_NAME, "ow_comments_content")
     driver.find_element(By.CLASS_NAME, "ow_miniic_comment").click()
     wait = WebDriverWait(driver, 10)
     wait.until(expected_conditions.visibility_of(driver.find_element(By.CLASS_NAME, "ow_comments_form_wrap")))
     driver.find_element(By.CLASS_NAME, "comments_fake_autoclick").send_keys(input_inner_text, Keys.ENTER)
-    comment = wait.until(expected_conditions.visibility_of(driver.find_element(By.CLASS_NAME, "ow_comments_content")))
-    assert comment.text == input_inner_text
+    comments = wait.until(presence_num_of_elements_gt((By.CLASS_NAME, "ow_comments_content"), len(current_inner_comment_counter)))
+    assert comments[0].text == input_inner_text
 
 
 def test_change_avatar(driver, log_in_log_out):
@@ -122,6 +131,6 @@ def test_view_more_feed(driver, log_in_log_out):
     all_news = driver.find_elements(By.CLASS_NAME, "ow_newsfeed_body")
     wait = WebDriverWait(driver, 10)
     driver.find_element(By.CLASS_NAME, "ow_newsfeed_view_more").click()
-    more_news = wait.until(presence_num_of_elements((By.CLASS_NAME, "ow_newsfeed_body"), 20))
+    more_news = wait.until(presence_num_of_elements_gt((By.CLASS_NAME, "ow_newsfeed_body"), len(all_news)))
     assert len(more_news) > len(all_news)
 

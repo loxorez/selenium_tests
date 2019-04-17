@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from Home10.additional_data import random_string, presence_num_of_elements
+from Home10.additional_data import random_string, presence_num_of_elements_eq
 
 
 @pytest.fixture(scope='session')
@@ -51,7 +51,7 @@ def create_new_comment(driver):
     driver.find_element(By.NAME, "save").click()
     expected_comments_value = len(all_comments) + 1
     wait = WebDriverWait(driver, 10)
-    wait.until(presence_num_of_elements((By.CLASS_NAME, 'ow_newsfeed_content'), expected_comments_value))
+    wait.until(presence_num_of_elements_eq((By.CLASS_NAME, 'ow_newsfeed_content'), expected_comments_value))
 
     yield
     action = ActionChains(driver)

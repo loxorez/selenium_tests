@@ -14,7 +14,7 @@ def random_string(string_min_len, string_max_len):
     return string_result
 
 
-class presence_num_of_elements:
+class presence_num_of_elements_eq:
     def __init__(self, locator, number):
         self.locator = locator
         self.number = number
@@ -24,3 +24,46 @@ class presence_num_of_elements:
         if len(elements) == self.number:
             return elements
 
+
+class presence_num_of_elements_gt:
+    def __init__(self, locator, number):
+        self.locator = locator
+        self.number = number
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if len(elements) > self.number:
+            return elements
+
+
+class presence_num_of_elements_lw:
+    def __init__(self, locator, number):
+        self.locator = locator
+        self.number = number
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if len(elements) < self.number:
+            return elements
+
+
+class presence_num_of_elements_gt_or_eq:
+    def __init__(self, locator, number):
+        self.locator = locator
+        self.number = number
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if len(elements) >= self.number:
+            return elements
+
+
+class presence_num_of_elements_lw_or_eq:
+    def __init__(self, locator, number):
+        self.locator = locator
+        self.number = number
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if len(elements) <= self.number:
+            return elements
