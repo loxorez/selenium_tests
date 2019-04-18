@@ -1,11 +1,11 @@
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from time import sleep
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions
 from Home10.additional_data import *
 import random
+import allure_pytest
 
 
 def test_create_short_post(driver, log_in_log_out):
