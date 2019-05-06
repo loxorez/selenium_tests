@@ -69,10 +69,37 @@ class StatusNewsfeedBody(object):
 
 class InputTextElement(object):
     """Input newsfeed text area elements placed here"""
-    def __init__(self, webelement):
-        self.element = webelement
+    def __init__(self, web_element):
+        self.web_element = web_element
 
     @property
     def placeholder(self):
         """Return text that located in the input field"""
-        return self.element.get_attribute("placeholder")
+        return self.web_element.get_attribute("placeholder")
+
+
+class WelcomeWidget(object):
+    """WelcomeWidget elements placed here"""
+    TITLE_STRING = (By.CLASS_NAME, "ow_ic_warning")
+    WIDGET_STRING = (By.CLASS_NAME, "oow_custom_html_widget")
+    SETTINGS = (By.CLASS_NAME, "ow_ic_gear_wheel")
+    DELETE = (By.CLASS_NAME, "ow_ic_delete")
+
+    def __init__(self, web_element):
+        self.web_element = web_element
+
+    @property
+    def title_text(self):
+        # Warning text
+        return self.web_element.find_element(*self.TITLE_STRING).text
+
+    @property
+    def widget_text(self):
+        # Warning text
+        return self.web_element.find_element(*self.WIDGET_STRING).text
+
+    @property
+    def settings_button(self):
+        # Settings button
+        return self.web_element.find_element(*self.SETTINGS)
+

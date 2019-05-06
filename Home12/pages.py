@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from Home12.custom_expected_conditions import presence_num_of_elements_gt, presence_num_of_elements_eq, random_string
-from Home12.elements import StatusNewsfeedBody, InputTextElement
+from Home12.elements import StatusNewsfeedBody, InputTextElement, WelcomeWidget
 
 
 class BasePage(object):
@@ -63,6 +63,14 @@ class DefaultPage(BasePage):
         action = ActionChains(driver)
         action.move_to_element(profile_button).move_to_element(log_out_button).click().perform()
         driver.quit()
+
+    def open_main_page(self):
+        # Open main page
+        self.driver.get('http://127.0.0.1/oxwall/index')
+
+    def random_string_gen(self, x, y):
+        # Return special string in specified range
+        return random_string(x, y)
 
     def wait_until_popup_becomes_invisible(self):
         # Explicit wait till popup window disappear
@@ -126,10 +134,6 @@ class DashboardPage(DefaultPage):
         # Click change avatar button, open avatar selection window
         self.driver.find_element(*self.CHANGE_AVATAR).click()
         return ChangeAvatar(self.driver)
-
-    def random_string_gen(self, x, y):
-        # Return special string in specified range
-        return random_string(x, y)
 
     def create_new_status(self, input_text):
         # Find form to add comment, fill form
@@ -227,4 +231,85 @@ class ChangeAvatar(DefaultPage):
         wait = WebDriverWait(self.driver, 10)
         wait.until(EC.visibility_of(self.driver.find_element(*self.CROP_AVATAR_FORM)))
 
+
+class MainPage(DefaultPage):
+    """Main page elements locators and methods placed here"""
+    CUSTOM_WIDGET = (By.CLASS_NAME, "ow_custom_html_widget")
+    CUSTOM_TITLE = (By.CLASS_NAME, "ow_ic_warning")
+    CUSTOMIZE_PAGE = (By.ID, "goto_customize_btn")
+
+    @property
+    def customize_page_click(self):
+        # Click customize this page button, open page costumization page
+        self.driver.find_element(*self.CUSTOMIZE_PAGE).click()
+        return CustomizePage(self.driver)
+
+    @property
+    def custom_widget_text(self):
+        # Return custom widget text
+        return self.driver.find_element(*self.CUSTOM_WIDGET).text
+
+    @property
+    def custom_widget_title(self):
+        # Return custom widget title
+        return self.driver.find_element(*self.CUSTOM_TITLE).text
+
+
+class CustomizePage(MainPage):
+    """Customize Page elements locators and methods placed here"""
+    WELCOME_WIDGET_ITEM = (By.CLASS_NAME, "clone")
+    FINISH_CUSTOMIZING = (By.ID, "goto_normal_btn")
+
+    @property
+    def welcome_widget_element(self):
+        # Welcome widget, that contains all its elements
+        return WelcomeWidget(self.find_visible_element(self.WELCOME_WIDGET_ITEM))
+
+    @property
+    def welcome_widget_settings(self):
+        # Welcome widget settings, open welcome widget settings window
+        button = WelcomeWidget(self.find_visible_element(self.WELCOME_WIDGET_ITEM)).settings_button
+        self.driver.execute_script("$(arguments[0]).click();", button)
+        return WidgetSettingsPage(self.driver)
+
+    @property
+    def finish_customizing(self):
+        # Finish customizing click, return to main page
+        finish_button = self.wait.until(EC.element_to_be_clickable(self.FINISH_CUSTOMIZING))
+        self.driver.execute_script("$(arguments[0]).click();", finish_button)
+        return MainPage(self.driver)
+
+
+class WidgetSettingsPage(DefaultPage):
+    """Widget Settings Popup elements locators and methods placed here"""
+    CONTENT_AREA = (By.NAME, "content")
+    TITLE_AREA = (By.NAME, "title")
+    SAVE = (By.CLASS_NAME, "dd_save")
+    TITLE_CHECK_BOX = (By.NAME, "show_title")
+
+    @property
+    def create_new_content_message(self, input_text=random_string(1, 150)):
+        # Find content form, clear it, fill form
+        self.driver.find_element(*self.CONTENT_AREA).clear()
+        self.driver.find_element(*self.CONTENT_AREA).send_keys(input_text)
+        return input_text
+
+    @property
+    def create_new_title_message(self, input_text=random_string(1, 150)):
+        # Find title form, clear it, fill form
+        self.driver.find_element(*self.TITLE_AREA).clear()
+        self.driver.find_element(*self.TITLE_AREA).send_keys(input_text)
+        return input_text
+
+    @property
+    def save_settings(self):
+        # Find save button, click it, wait until popup becomes invisible
+        self.driver.find_element(*self.SAVE).click()
+        self.wait_until_popup_becomes_invisible()
+        return CustomizePage(self.driver)
+
+    def enable_title(self):
+        # Enable title checkbox, if it disabled
+        if not self.driver.find_element(*self.TITLE_CHECK_BOX).is_selected():
+            self.driver.find_element(*self.TITLE_CHECK_BOX).click()
 
