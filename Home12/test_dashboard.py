@@ -1,10 +1,10 @@
 from Home12.pages import DashboardPage
 
 
-def test_create_short_status(driver, user_log_in_log_out):
+def test_create_short_status(driver, user_log_in_log_out, status_text_parametrize):
     # Create short status, verify it presence
     dashboard = DashboardPage(driver)
-    input_text = dashboard.random_string_gen(1, 300)
+    input_text = status_text_parametrize
     all_existing_statuses = dashboard.all_statuses_elements
     dashboard.create_new_status(input_text)
     dashboard.wait_until_new_status_appears(all_existing_statuses)
@@ -98,7 +98,7 @@ def test_add_inner_comment(driver, user_log_in_log_out, create_new_comment):
 def test_change_avatar(driver, user_log_in_log_out):
     # Test avatar changing
     dashboard = DashboardPage(driver)
-    avatar = dashboard.change_avatar
+    avatar = dashboard.change_avatar()
     avatar.all_avatars[0].click()
     avatar.wait_until_crop_form_appears()
     avatar.apply_crop_click()

@@ -129,7 +129,6 @@ class DashboardPage(DefaultPage):
         # Status input field, that contains all its elements
         return InputTextElement(self.find_visible_element(self.STATUS_ADD_FORM))
 
-    @property
     def change_avatar(self):
         # Click change avatar button, open avatar selection window
         self.driver.find_element(*self.CHANGE_AVATAR).click()
@@ -238,7 +237,6 @@ class MainPage(DefaultPage):
     CUSTOM_TITLE = (By.CLASS_NAME, "ow_ic_warning")
     CUSTOMIZE_PAGE = (By.ID, "goto_customize_btn")
 
-    @property
     def customize_page_click(self):
         # Click customize this page button, open page costumization page
         self.driver.find_element(*self.CUSTOMIZE_PAGE).click()
@@ -265,14 +263,12 @@ class CustomizePage(MainPage):
         # Welcome widget, that contains all its elements
         return WelcomeWidget(self.find_visible_element(self.WELCOME_WIDGET_ITEM))
 
-    @property
     def welcome_widget_settings(self):
         # Welcome widget settings, open welcome widget settings window
         button = WelcomeWidget(self.find_visible_element(self.WELCOME_WIDGET_ITEM)).settings_button
         self.driver.execute_script("$(arguments[0]).click();", button)
         return WidgetSettingsPage(self.driver)
 
-    @property
     def finish_customizing(self):
         # Finish customizing click, return to main page
         finish_button = self.wait.until(EC.element_to_be_clickable(self.FINISH_CUSTOMIZING))
@@ -287,21 +283,18 @@ class WidgetSettingsPage(DefaultPage):
     SAVE = (By.CLASS_NAME, "dd_save")
     TITLE_CHECK_BOX = (By.NAME, "show_title")
 
-    @property
     def create_new_content_message(self, input_text=random_string(1, 150)):
         # Find content form, clear it, fill form
         self.driver.find_element(*self.CONTENT_AREA).clear()
         self.driver.find_element(*self.CONTENT_AREA).send_keys(input_text)
         return input_text
 
-    @property
     def create_new_title_message(self, input_text=random_string(1, 150)):
         # Find title form, clear it, fill form
         self.driver.find_element(*self.TITLE_AREA).clear()
         self.driver.find_element(*self.TITLE_AREA).send_keys(input_text)
         return input_text
 
-    @property
     def save_settings(self):
         # Find save button, click it, wait until popup becomes invisible
         self.driver.find_element(*self.SAVE).click()

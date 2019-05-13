@@ -1,3 +1,5 @@
+import json
+import os
 import pytest
 from selenium import webdriver
 from Home12.pages import DefaultPage, DashboardPage
@@ -43,6 +45,13 @@ def create_new_comment(driver):
     sleep(1)
 
 
+# Open values to parametrize status tests
+json_status_data = os.path.join(os.path.dirname(os.path.abspath(__file__)), "json_data", "status_data.json")
+with open(json_status_data, 'r') as file:
+    json_data = file.read()
+    statuses_list = json.loads(json_data)
 
-
-
+# Status text, using parametrize
+@pytest.fixture(params=statuses_list, ids=[str(status) for status in statuses_list])
+def status_text_parametrize(request):
+    return request.param
