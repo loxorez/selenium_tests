@@ -1,0 +1,14 @@
+{
+  "db": {
+    "host":"localhost",
+    "user":"root",
+    "password":"mysql",
+    "db":"oxwall4",
+    "charset":"utf8mb4"
+  },
+  "web": {
+    "username":"admin",
+    "password":"admin",
+    "real_name":"Admin"
+  }
+}
