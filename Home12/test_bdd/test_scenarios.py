@@ -29,3 +29,13 @@ def test_like_status():
 @scenario("status.feature", "Inside status counter")
 def test_inside_status_comments():
     pass
+
+
+@scenario("avatar.feature", "Change avatar")
+def test_change_avatar():
+    pass
+
+
+@scenario("widget.feature", "Change welcome widget settings")
+def test_welcome_widget():
+    pass

@@ -1,7 +1,7 @@
 import pytest
 from pytest_bdd import given, when, then, scenario
 
-from Home12.pages import DashboardPage, DefaultPage
+from Home12.pages import DashboardPage, DefaultPage, MainPage
 from models.user import User
 
 
@@ -48,6 +48,15 @@ def initial_statuses_comments(application, driver):
     return dashboard.all_statuses_elements[0].status_value
 
 
+@given("widget settings page")
+def open_widget_settings(driver):
+    main_page = MainPage(driver)
+    main_page.open_main_page()
+    customize_page = main_page.customize_page_click()
+    welcome_widget_settings = customize_page.welcome_widget_settings()
+    return welcome_widget_settings
+
+
 # When Steps
 
 @when("I add status with <text>")
@@ -84,6 +93,26 @@ def add_inside_comments(driver):
     dashboard.wait_until_status_form_appears()
     for i in range(comment_number):
         dashboard.send_inside_comment()
+
+
+@when("user select avatar in change avatar modal")
+def select_avatar(driver):
+    dashboard = DashboardPage(driver)
+    avatar = dashboard.change_avatar()
+    avatar.all_avatars[0].click()
+    avatar.wait_until_crop_form_appears()
+    avatar.apply_crop_click()
+    avatar.wait_until_popup_becomes_invisible()
+
+
+@when("user add <new_content_message>")
+def add_content_message(driver, new_content_message, open_widget_settings):
+    open_widget_settings.create_new_content_message(input_text=new_content_message)
+
+
+@when("user add <new_title_message>")
+def add_title_message(driver, new_title_message, open_widget_settings):
+    open_widget_settings.create_new_title_message(input_text=new_title_message)
 
 
 # Then steps
@@ -143,4 +172,17 @@ def inside_status_comments_value(driver, initial_statuses_comments):
     new_comment_counter = dashboard.all_statuses_elements[0].status_value
     assert new_comment_counter == initial_statuses_comments + 5
 
+
+@then("enable title and save settings")
+def save_widget_settings(driver, open_widget_settings):
+    open_widget_settings.enable_title()
+    customize_page = open_widget_settings.save_settings()
+    main_page = customize_page.finish_customizing()
+
+
+@then("widget has <new_content_message> and <new_title_message>")
+def widget_message_title(driver, new_content_message, new_title_message):
+    main_page = MainPage(driver)
+    assert new_content_message == main_page.custom_widget_text
+    assert new_title_message == main_page.custom_widget_title
 
